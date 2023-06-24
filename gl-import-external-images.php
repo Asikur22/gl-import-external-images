@@ -3,7 +3,7 @@
  * Plugin Name:       GL Import External Images
  * Plugin URI:        https://greenlifeit.com/plugins
  * Description:       Download and Insert images to WP Media Library from External URLs.
- * Version:           2.0
+ * Version:           2.1
  * Author:            Asiqur Rahman
  * Author URI:        https://asique.net
  * License:           GPLv2 or later
@@ -21,6 +21,7 @@ function gliei_upload_form() {
 	<div class="gliei-wrap" style="text-align: center;">
 		<div class="gliei-input">
 			<div style="margin-bottom: 15px;">or</div>
+			<h2 class="upload-instructions">Insert Media from URL</h2>
 			<input name="url" type="url" class="gliei-url" placeholder="<?php _e( 'Image URL...', 'gliei' ); ?>" style="width: 300px;" autocomplete="off">
 		</div>
 		<div class="gliei-submit" style="margin-top: 15px;">
@@ -134,7 +135,7 @@ function gliei_import_image() {
  */
 function appsero_init_tracker_gl_import_external_images() {
     if ( ! class_exists( 'Appsero\Client' ) ) {
-      require_once __DIR__ . '/appsero/src/Client.php';
+      require_once __DIR__ . '/lib/appsero/src/Client.php';
     }
 
     $client = new Appsero\Client( '448732d0-52eb-41d9-b41c-8931eb5e4897', 'GL Import External Images', __FILE__ );

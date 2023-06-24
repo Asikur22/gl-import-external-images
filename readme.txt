@@ -5,7 +5,7 @@ License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Requires at least: 2.6.0
 Tested up to: 6.2
-Stable tag: 2.0
+Stable tag: 2.1
 
 == Description ==
 
@@ -59,3 +59,4 @@ Your given URL must be publicly accessible.
 
 = 2.0 =
 * Elementor conflict fix.
+* Appsero Analytics added.
