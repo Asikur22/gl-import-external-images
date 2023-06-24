@@ -125,3 +125,23 @@ function gliei_import_image() {
 	
 	wp_die();
 }
+
+
+/**
+ * Initialize the plugin tracker
+ *
+ * @return void
+ */
+function appsero_init_tracker_gl_import_external_images() {
+    if ( ! class_exists( 'Appsero\Client' ) ) {
+      require_once __DIR__ . '/appsero/src/Client.php';
+    }
+
+    $client = new Appsero\Client( '448732d0-52eb-41d9-b41c-8931eb5e4897', 'GL Import External Images', __FILE__ );
+
+    // Active insights
+    $client->insights()->init();
+}
+
+appsero_init_tracker_gl_import_external_images();
+
