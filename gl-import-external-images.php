@@ -3,7 +3,7 @@
  * Plugin Name:       GL Import External Images
  * Plugin URI:        https://greenlifeit.com/plugins
  * Description:       Download and Insert images to WP Media Library from External URLs.
- * Version:           1.0
+ * Version:           2.0
  * Author:            Asiqur Rahman
  * Author URI:        https://asique.net
  * License:           GPLv2 or later
@@ -11,39 +11,41 @@
  * Text Domain:       gliei
  */
 
-// If this file is called directly, abort.
 if ( ! defined( 'ABSPATH' ) ) {
-	die;
+	die();
 }
 
+add_action( 'post-upload-ui', 'gliei_upload_form' );
 function gliei_upload_form() {
 	?>
 	<div class="gliei-wrap" style="text-align: center;">
 		<div class="gliei-input">
 			<div style="margin-bottom: 15px;">or</div>
-			<input name="url" type="url" id="gliei-url" placeholder="<?php _e( 'Image URL...', 'gliei' ); ?>" style="min-width: 300px;" autocomplete="off">
+			<input name="url" type="url" class="gliei-url" placeholder="<?php _e( 'Image URL...', 'gliei' ); ?>" style="width: 300px;" autocomplete="off">
 		</div>
 		<div class="gliei-submit" style="margin-top: 15px;">
-			<input type="hidden" name="gliei_nonce" id="gliei_nonce" value="<?php echo wp_create_nonce( 'gliei' ); ?>">
-			<button type="button" id="gliei-submit-btn" class="button-primary">
+			<input type="hidden" name="gliei_nonce" class="gliei_nonce" value="<?php echo wp_create_nonce( 'gliei' ); ?>">
+			<button type="button" class="gliei-submit-btn button-primary">
 				<?php _e( 'Add to Media Library', 'gliei' ); ?>
 			</button>
-			<div id="gliei-message" style="max-width: 300px; margin: 15px auto 0;"></div>
+			<div class="gliei-message" style="max-width: 300px; margin: 15px auto 0;"></div>
 		</div>
 	</div>
 	<script>
-		document.getElementById( 'gliei-submit-btn' ).addEventListener( 'click', function ( event ) {
+		var gliei_import_image = function ( event ) {
 			event.preventDefault();
 			
-			var urlInput = document.getElementById( 'gliei-url' );
+			let wrap = event.target.closest( '.gliei-wrap' );
+			
+			var urlInput = wrap.querySelector( '.gliei-url' );
 			if ( urlInput.value.length == 0 ) {
 				alert( '<?php _e( 'Please add a URL', 'gliei' ); ?>' );
 				return false;
 			}
 			
-			var message = document.getElementById( 'gliei-message' );
+			var message = wrap.querySelector( '.gliei-message' );
+			message.classList = 'gliei-message';
 			message.innerHTML = '<img src="<?php echo includes_url( 'images/spinner.gif' ); ?>" alt="Importing...">';
-			message.classList = 'downloading';
 			
 			var ajaxurl = '<?php echo admin_url( 'admin-ajax.php' ); ?>';
 			var xhttp = new XMLHttpRequest();
@@ -51,7 +53,7 @@ function gliei_upload_form() {
 			var formData = new FormData();
 			formData.append( 'action', 'gliei_action' );
 			formData.append( 'url', urlInput.value );
-			formData.append( 'gliei_nonce', document.getElementById( 'gliei_nonce' ).value );
+			formData.append( 'gliei_nonce', wrap.querySelector( '.gliei_nonce' ).value );
 			
 			xhttp.open( "POST", ajaxurl );
 			xhttp.send( formData );
@@ -85,13 +87,25 @@ function gliei_upload_form() {
 					}
 				}
 			};
+		}
+		
+		document.querySelectorAll( '.gliei-submit-btn' ).forEach( function ( gliei_btn ) {
+			gliei_btn.addEventListener( 'click', gliei_import_image );
+		} );
+		
+		document.querySelectorAll( '.gliei-url' ).forEach( function ( gliei_input ) {
+			gliei_input.addEventListener( 'keypress', function ( event ) {
+				if ( event.keyCode === 13 ) {
+					gliei_import_image( event );
+				}
+			} );
 		} );
 	</script>
 	<?php
 }
 
-add_action( 'post-upload-ui', 'gliei_upload_form' );
-
+add_action( 'wp_ajax_gliei_action', 'gliei_import_image' );
+add_action( 'wp_ajax_nopriv_gliei_action', '__return_zero' );
 function gliei_import_image() {
 	if ( ! wp_verify_nonce( $_POST['gliei_nonce'], 'gliei' ) ) {
 		wp_send_json_error( __( 'You don\'t have permission to upload image', 'gliei' ) );
@@ -111,6 +125,3 @@ function gliei_import_image() {
 	
 	wp_die();
 }
-
-add_action( 'wp_ajax_gliei_action', 'gliei_import_image' );
-add_action( 'wp_ajax_nopriv_gliei_action', '__return_zero' );
